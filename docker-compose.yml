@@ -1,0 +1,62 @@
+version: '2'
+services:
+  house.user-api:
+    container_name: house.user-api
+    build: .
+    ports:
+      - 8080:8080
+      - 5005:5005
+      - 9010:9010
+    volumes:
+      - swagger:/user-api/swagger
+    environment:
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+      DB_HOST: house.mysql
+      DB_NAME: users
+      APPLICATION_NAME: user-api
+      JAVA_OPTS: -server
+        -Xmx128m
+        -XX:SurvivorRatio=2
+        -XX:+UseG1GC
+        -XX:+UseStringDeduplication
+        -XX:+UnlockExperimentalVMOptions
+        -XX:G1NewSizePercent=20
+        -XX:+ParallelRefProcEnabled
+        -XX:+ExplicitGCInvokesConcurrent
+        -XX:+UnlockDiagnosticVMOptions
+        -XX:G1SummarizeRSetStatsPeriod=1
+        -XX:MaxMetaspaceExpansion=64M
+        -XX:HeapDumpPath=/heap/oomErrorDump.bin
+        -Dcom.sun.management.jmxremote
+        -Dcom.sun.management.jmxremote.port=9010
+        -Dcom.sun.management.jmxremote.authenticate=false
+        -Dcom.sun.management.jmxremote.ssl=false
+        -Dsun.net.inetaddr.ttl=5
+        -Djavax.servlet.request.encoding=UTF-8
+        -Dfile.encoding=UTF-8
+        -Xdebug
+        -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005
+    depends_on:
+      - house.mysql
+      - house.swagger
+  house.swagger:
+    container_name: house.swagger
+    image: swaggerapi/swagger-ui
+    volumes:
+      - swagger:/usr/share/nginx/html/swagger
+    ports:
+      - 8070:8080
+    environment:
+      API_URL: http://localhost:8070/swagger/swagger.json
+  house.mysql:
+    container_name: house.mysql
+    image: mysql:5
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - 3307:3306
+    logging:
+      driver: none
+volumes:
+  swagger:
