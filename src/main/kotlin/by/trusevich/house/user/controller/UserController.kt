@@ -1,11 +1,13 @@
 package by.trusevich.house.user.controller
 
+import by.trusevich.house.core.annotation.TokenHeaderImplicit
 import by.trusevich.house.core.exception.EntityNoContentException.Companion.NO_CONTENT_REASON
 import by.trusevich.house.core.exception.EntityNotFoundException.Companion.NOT_FOUND_REASON
 import by.trusevich.house.core.exception.MalformedRequestDataException.Companion.MALFORMED_REASON
 import by.trusevich.house.core.exception.UnauthorizedException.Companion.UNAUTHORIZED_REASON
 import by.trusevich.house.core.exception.model.ErrorDetails
 import by.trusevich.house.core.util.SC_UNPROCESSABLE_ENTITY
+import by.trusevich.house.core.util.TOKEN_HEADER
 import by.trusevich.house.core.util.VALIDATION_REASON
 import by.trusevich.house.user.model.User
 import by.trusevich.house.user.service.UserService
@@ -27,7 +29,6 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestMethod.DELETE
 import org.springframework.web.bind.annotation.RequestMethod.GET
-import org.springframework.web.bind.annotation.RequestMethod.PATCH
 import org.springframework.web.bind.annotation.RequestMethod.POST
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
@@ -41,7 +42,7 @@ import javax.validation.constraints.Min
 @RestController
 @RequestMapping("/users")
 @Api("User Management", description = "Endpoints for managing users")
-@CrossOrigin(origins = ["*"], allowedHeaders = ["*"], methods = [GET, POST, PATCH, DELETE])
+@CrossOrigin(origins = ["*"], allowedHeaders = ["*"], methods = [GET, POST, DELETE])
 class UserController(private val userService: UserService) {
 
     @ApiOperation("Create user", notes = "Creates a new user")
@@ -52,10 +53,15 @@ class UserController(private val userService: UserService) {
     )
     @PostMapping(consumes = [APPLICATION_JSON_UTF8_VALUE], produces = [APPLICATION_JSON_UTF8_VALUE])
     @ApiImplicitParams(
-        ApiImplicitParam(paramType = "body", dataType = "by.trusevich.house.user.model.swagger.CreateUser")
+        ApiImplicitParam(paramType = "body", dataType = "by.trusevich.house.user.model.swagger.CreateUser"),
+        ApiImplicitParam(
+            "aa.bb.cc", paramType = "header", required = true,
+            name = TOKEN_HEADER, dataTypeClass = String::class, type = "string"
+        )
     )
     fun createUser(@Valid @ApiParam(hidden = true) @RequestBody user: User) = userService.create(user)
 
+    @TokenHeaderImplicit
     @ApiOperation("Get user by id", notes = "Gets user by id")
     @ApiResponses(
         ApiResponse(code = SC_UNAUTHORIZED, message = UNAUTHORIZED_REASON, response = ErrorDetails::class),
@@ -64,6 +70,7 @@ class UserController(private val userService: UserService) {
     @GetMapping("/{id}", produces = [APPLICATION_JSON_UTF8_VALUE])
     fun getUserById(@ApiParam("10") @PathVariable id: Long) = userService.find(id)
 
+    @TokenHeaderImplicit
     @ApiOperation("Delete user by id", notes = "Deletes user from database.")
     @ApiResponses(
         ApiResponse(code = SC_UNAUTHORIZED, message = UNAUTHORIZED_REASON, response = ErrorDetails::class),
@@ -72,6 +79,7 @@ class UserController(private val userService: UserService) {
     @DeleteMapping("/{id}", produces = [APPLICATION_JSON_UTF8_VALUE])
     fun deleteUserById(@ApiParam("10") @PathVariable id: Long) = userService.delete(id)
 
+    @TokenHeaderImplicit
     @ApiOperation("Find all users", notes = "Retrieves a list of User (supports pagination and ordering)")
     @ApiResponses(
         ApiResponse(code = SC_UNAUTHORIZED, message = UNAUTHORIZED_REASON, response = ErrorDetails::class)

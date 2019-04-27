@@ -5,6 +5,7 @@ import by.trusevich.house.user.model.User
 
 interface UserRepository : BaseRepository<User> {
 
-    fun existsByLogin(name: String): Boolean
+    fun existsByLogin(login: String): Boolean
 
+    fun findByLogin(login: String): User?
 }
