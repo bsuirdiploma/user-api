@@ -14,7 +14,7 @@
     <artifactId>user-api</artifactId>
     <version>0.0.1-SNAPSHOT</version>
 
-    <name>Sample API</name>
+    <name>User API</name>
 
     <packaging>jar</packaging>
 
