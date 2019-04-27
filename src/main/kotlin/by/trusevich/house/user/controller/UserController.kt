@@ -10,6 +10,8 @@ import by.trusevich.house.core.util.VALIDATION_REASON
 import by.trusevich.house.user.model.User
 import by.trusevich.house.user.service.UserService
 import io.swagger.annotations.Api
+import io.swagger.annotations.ApiImplicitParam
+import io.swagger.annotations.ApiImplicitParams
 import io.swagger.annotations.ApiOperation
 import io.swagger.annotations.ApiParam
 import io.swagger.annotations.ApiResponse
@@ -19,7 +21,6 @@ import org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE
 import org.springframework.web.bind.annotation.CrossOrigin
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PatchMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -50,7 +51,10 @@ class UserController(private val userService: UserService) {
         ApiResponse(code = SC_BAD_REQUEST, message = MALFORMED_REASON, response = ErrorDetails::class)
     )
     @PostMapping(consumes = [APPLICATION_JSON_UTF8_VALUE], produces = [APPLICATION_JSON_UTF8_VALUE])
-    fun createUser(@Valid @RequestBody user: User) = userService.create(user)
+    @ApiImplicitParams(
+        ApiImplicitParam(paramType = "body", dataType = "by.trusevich.house.user.model.swagger.CreateUser")
+    )
+    fun createUser(@Valid @ApiParam(hidden = true) @RequestBody user: User) = userService.create(user)
 
     @ApiOperation("Get user by id", notes = "Gets user by id")
     @ApiResponses(
@@ -59,19 +63,6 @@ class UserController(private val userService: UserService) {
     )
     @GetMapping("/{id}", produces = [APPLICATION_JSON_UTF8_VALUE])
     fun getUserById(@ApiParam("10") @PathVariable id: Long) = userService.find(id)
-
-    @ApiOperation("Update user by id", notes = "Updates user, and saves it to DB")
-    @ApiResponses(
-        ApiResponse(code = SC_UNAUTHORIZED, message = UNAUTHORIZED_REASON, response = ErrorDetails::class),
-        ApiResponse(code = SC_BAD_REQUEST, message = MALFORMED_REASON, response = ErrorDetails::class),
-        ApiResponse(code = SC_NOT_FOUND, message = NOT_FOUND_REASON, response = ErrorDetails::class),
-        ApiResponse(code = SC_UNPROCESSABLE_ENTITY, message = VALIDATION_REASON, response = ErrorDetails::class)
-    )
-    @PatchMapping("/{id}", consumes = [APPLICATION_JSON_UTF8_VALUE], produces = [APPLICATION_JSON_UTF8_VALUE])
-    fun updateUserById(
-        @ApiParam("10") @PathVariable id: Long,
-        @Valid @RequestBody user: User
-    ) = userService.update(id, user)
 
     @ApiOperation("Delete user by id", notes = "Deletes user from database.")
     @ApiResponses(

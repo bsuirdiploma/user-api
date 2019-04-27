@@ -2,12 +2,14 @@ package by.trusevich.house.user.model
 
 import by.trusevich.house.core.model.BaseEntity
 import by.trusevich.house.core.model.enumeration.Role
-import by.trusevich.house.user.validation.NameUnique
+import by.trusevich.house.user.validation.LoginUnique
 import by.trusevich.house.user.validation.RoleValid
-import by.trusevich.house.user.validation.SurnameUnique
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY
+import com.fasterxml.jackson.annotation.JsonProperty
+import com.fasterxml.jackson.annotation.JsonProperty.Access.WRITE_ONLY
+import io.swagger.annotations.ApiModelProperty
 import org.hibernate.envers.Audited
 import org.hibernate.validator.constraints.Length
 import javax.persistence.Column
@@ -21,22 +23,15 @@ import javax.validation.constraints.NotNull
 @Audited
 @JsonInclude(NON_EMPTY)
 @JsonIgnoreProperties(ignoreUnknown = true)
-@Table(
-    uniqueConstraints = [
-        UniqueConstraint(name = "unique_name", columnNames = ["name"]),
-        UniqueConstraint(name = "unique_surname", columnNames = ["surname"])
-    ]
-)
+@Table(uniqueConstraints = [UniqueConstraint(name = "unique_name", columnNames = ["login"])])
 data class User(
 
     @get:NotBlank
-    @get:NameUnique
     @get:Length(max = 255)
     @Column(nullable = false)
     var name: String? = null,
 
     @get:NotBlank
-    @get:SurnameUnique
     @get:Length(max = 255)
     @Column(nullable = false)
     var surname: String? = null,
@@ -44,7 +39,16 @@ data class User(
     @get:RoleValid
     @get:NotNull
     @Column(nullable = false)
-    var role: Role? = null
+    var role: Role? = null,
+
+    @JsonProperty(access = WRITE_ONLY)
+    @ApiModelProperty(readOnly = true)
+    @get:LoginUnique
+    var login: String? = null,
+
+    @JsonProperty(access = WRITE_ONLY)
+    @ApiModelProperty(readOnly = true)
+    var password: String? = null
 
 ) : BaseEntity() {
 

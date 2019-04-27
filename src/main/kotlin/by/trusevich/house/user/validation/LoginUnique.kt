@@ -11,24 +11,24 @@ import kotlin.annotation.AnnotationTarget.PROPERTY_GETTER
 import kotlin.reflect.KClass
 
 /**
- * Validates, that the user surname is unique in database
+ * Validates, that the user name is unique in database
  */
 @Retention
 @Target(PROPERTY_GETTER, FIELD)
 @MustBeDocumented
-@Constraint(validatedBy = [SurnameUniqueValidator::class])
-annotation class SurnameUnique(
-    @Suppress("unused") val message: String = "User with such surname already exists",
+@Constraint(validatedBy = [LoginUniqueValidator::class])
+annotation class LoginUnique(
+    @Suppress("unused") val message: String = "User with such login already exists",
     @Suppress("unused") val groups: Array<KClass<*>> = [],
     @Suppress("unused") val payload: Array<KClass<out Payload>> = []
 )
 
-class SurnameUniqueValidator(private val userRepository: UserRepository) : ConstraintValidator<SurnameUnique, String?> {
+class LoginUniqueValidator(private val userRepository: UserRepository) : ConstraintValidator<LoginUnique, String?> {
 
     private val log by lazyLogger()
 
-    override fun initialize(constraint: SurnameUnique) = Unit
+    override fun initialize(constraint: LoginUnique) = Unit
 
-    override fun isValid(surname: String?, context: ConstraintValidatorContext) =
-        surname == null || !userRepository.existsBySurname(surname).also { log.info("SurnameUniqueValidator") }
+    override fun isValid(login: String?, context: ConstraintValidatorContext) =
+        login == null || !userRepository.existsByLogin(login).also { log.info("LoginUniqueValidator") }
 }
