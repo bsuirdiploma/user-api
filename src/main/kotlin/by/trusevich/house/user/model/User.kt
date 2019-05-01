@@ -23,7 +23,7 @@ import javax.validation.constraints.NotNull
 @Audited
 @JsonInclude(NON_EMPTY)
 @JsonIgnoreProperties(ignoreUnknown = true)
-@Table(uniqueConstraints = [UniqueConstraint(name = "unique_name", columnNames = ["login"])])
+@Table(uniqueConstraints = [UniqueConstraint(name = "unique_login", columnNames = ["login"])])
 data class User(
 
     @get:NotBlank

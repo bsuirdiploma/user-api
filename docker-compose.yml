@@ -8,7 +8,7 @@ services:
       - 5005:5005
       - 9010:9010
     volumes:
-      - swagger:/user-api/swagger
+      - user:/user-api/swagger
     environment:
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: root
@@ -40,15 +40,144 @@ services:
     depends_on:
       - house.mysql
       - house.swagger
+  house.climate-api:
+    container_name: house.climate-api
+    build:
+      context: ../climate-api
+      dockerfile: Dockerfile
+    ports:
+      - 8081:8080
+      - 5006:5005
+      - 9011:9010
+    volumes:
+      - climate:/climate-api/swagger
+    environment:
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+      DB_HOST: house.mysql
+      DB_NAME: climate
+      APPLICATION_NAME: climate-api
+      JAVA_OPTS: -server
+        -Xmx128m
+        -XX:SurvivorRatio=2
+        -XX:+UseG1GC
+        -XX:+UseStringDeduplication
+        -XX:+UnlockExperimentalVMOptions
+        -XX:G1NewSizePercent=20
+        -XX:+ParallelRefProcEnabled
+        -XX:+ExplicitGCInvokesConcurrent
+        -XX:+UnlockDiagnosticVMOptions
+        -XX:G1SummarizeRSetStatsPeriod=1
+        -XX:MaxMetaspaceExpansion=64M
+        -XX:HeapDumpPath=/heap/oomErrorDump.bin
+        -Dcom.sun.management.jmxremote
+        -Dcom.sun.management.jmxremote.port=9010
+        -Dcom.sun.management.jmxremote.authenticate=false
+        -Dcom.sun.management.jmxremote.ssl=false
+        -Dsun.net.inetaddr.ttl=5
+        -Djavax.servlet.request.encoding=UTF-8
+        -Dfile.encoding=UTF-8
+        -Xdebug
+        -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005
+    depends_on:
+      - house.mysql
+      - house.swagger
+  house.watering-api:
+    container_name: house.watering-api
+    build:
+      context: ../watering-api
+      dockerfile: Dockerfile
+    ports:
+      - 8082:8080
+      - 5007:5005
+      - 9012:9010
+    volumes:
+      - watering:/watering-api/swagger
+    environment:
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+      DB_HOST: house.mysql
+      DB_NAME: watering
+      APPLICATION_NAME: watering-api
+      JAVA_OPTS: -server
+        -Xmx128m
+        -XX:SurvivorRatio=2
+        -XX:+UseG1GC
+        -XX:+UseStringDeduplication
+        -XX:+UnlockExperimentalVMOptions
+        -XX:G1NewSizePercent=20
+        -XX:+ParallelRefProcEnabled
+        -XX:+ExplicitGCInvokesConcurrent
+        -XX:+UnlockDiagnosticVMOptions
+        -XX:G1SummarizeRSetStatsPeriod=1
+        -XX:MaxMetaspaceExpansion=64M
+        -XX:HeapDumpPath=/heap/oomErrorDump.bin
+        -Dcom.sun.management.jmxremote
+        -Dcom.sun.management.jmxremote.port=9010
+        -Dcom.sun.management.jmxremote.authenticate=false
+        -Dcom.sun.management.jmxremote.ssl=false
+        -Dsun.net.inetaddr.ttl=5
+        -Djavax.servlet.request.encoding=UTF-8
+        -Dfile.encoding=UTF-8
+        -Xdebug
+        -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005
+    depends_on:
+      - house.mysql
+      - house.swagger
+  house.ctv-api:
+    container_name: house.ctv-api
+    build:
+      context: ../ctv-api
+      dockerfile: Dockerfile
+    ports:
+      - 8083:8080
+      - 5008:5005
+      - 9013:9010
+    volumes:
+      - ctv:/ctv-api/swagger
+    environment:
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+      DB_HOST: house.mysql
+      DB_NAME: ctv
+      APPLICATION_NAME: ctv-api
+      JAVA_OPTS: -server
+        -Xmx128m
+        -XX:SurvivorRatio=2
+        -XX:+UseG1GC
+        -XX:+UseStringDeduplication
+        -XX:+UnlockExperimentalVMOptions
+        -XX:G1NewSizePercent=20
+        -XX:+ParallelRefProcEnabled
+        -XX:+ExplicitGCInvokesConcurrent
+        -XX:+UnlockDiagnosticVMOptions
+        -XX:G1SummarizeRSetStatsPeriod=1
+        -XX:MaxMetaspaceExpansion=64M
+        -XX:HeapDumpPath=/heap/oomErrorDump.bin
+        -Dcom.sun.management.jmxremote
+        -Dcom.sun.management.jmxremote.port=9010
+        -Dcom.sun.management.jmxremote.authenticate=false
+        -Dcom.sun.management.jmxremote.ssl=false
+        -Dsun.net.inetaddr.ttl=5
+        -Djavax.servlet.request.encoding=UTF-8
+        -Dfile.encoding=UTF-8
+        -Xdebug
+        -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005
+    depends_on:
+      - house.mysql
+      - house.swagger
   house.swagger:
     container_name: house.swagger
-    image: swaggerapi/swagger-ui
+    build:
+      context: swagger
+      dockerfile: Dockerfile
     volumes:
-      - swagger:/usr/share/nginx/html/swagger
+      - user:/usr/share/nginx/html/user
+      - ctv:/usr/share/nginx/html/ctv
+      - climate:/usr/share/nginx/html/climate
+      - watering:/usr/share/nginx/html/watering
     ports:
       - 8070:8080
-    environment:
-      API_URL: http://localhost:8070/swagger/swagger.json
   house.mysql:
     container_name: house.mysql
     image: mysql:5
@@ -59,4 +188,7 @@ services:
     logging:
       driver: none
 volumes:
-  swagger:
+  user:
+  ctv:
+  climate:
+  watering:
