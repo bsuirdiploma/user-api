@@ -2,6 +2,7 @@ package by.trusevich.house.user.service
 
 import by.trusevich.house.core.exception.UnauthorizedException
 import by.trusevich.house.core.service.BaseAuthenticationService
+import by.trusevich.house.user.model.Token
 import by.trusevich.house.user.repository.UserRepository
 import io.jsonwebtoken.Jwts.builder
 import io.jsonwebtoken.SignatureAlgorithm.HS512
@@ -21,13 +22,13 @@ class AuthenticationService(
         if (!passwordEncoder.matches(enteredPassword, password))
             throw UnauthorizedException()
 
-        builder().setClaims(
+        Token(builder().setClaims(
             mapOf(
                 NAME to name,
                 SURNAME to surname,
                 ROLE to role,
                 EXPIRATION to addHours(Date(), 1).time.toString()
             )
-        ).signWith(HS512, SECRET_KEY).compact()
+        ).signWith(HS512, SECRET_KEY).compact())
     } ?: throw UnauthorizedException()
 }
